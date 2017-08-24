@@ -443,27 +443,15 @@ class Maze:
 
                     
                     if "N" in tile.connectTo:
-                        
-                        x = ((tile.coordinateX  + 1) * 2 - 1) * self.pixel
-                        y = ((tile.coordinateY  + 1) * 2 - 1) * self.pixel
                         drawImage.rectangle([x, y - self.pixel, x + self.pixel - 1, y - 1], fill = 1)
                         
                     if "S" in tile.connectTo:
-                        
-                        x = ((tile.coordinateX  + 1) * 2 - 1) * self.pixel
-                        y = ((tile.coordinateY  + 1) * 2 - 1) * self.pixel
                         drawImage.rectangle([x, y + self.pixel, x + self.pixel - 1, y + self.pixel + self.pixel - 1], fill = 1)
                         
                     if "W" in tile.connectTo:
-                        
-                        x = ((tile.coordinateX  + 1) * 2 - 1) * self.pixel
-                        y = ((tile.coordinateY  + 1) * 2 - 1) * self.pixel
                         drawImage.rectangle([x - self.pixel, y, x - 1, y + self.pixel - 1], fill = 1)
         
                     if "E" in tile.connectTo:
-                        
-                        x = ((tile.coordinateX  + 1) * 2 - 1) * self.pixel
-                        y = ((tile.coordinateY  + 1) * 2 - 1) * self.pixel
                         drawImage.rectangle([x + self.pixel, y, x + self.pixel + self.pixel - 1, y + self.pixel - 1], fill = 1)
 
         return image #returns an image object
