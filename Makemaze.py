@@ -3,6 +3,50 @@ import random as rnd
 import time
 
 class Maze:
+    """ This Class represents a Maze. After init it consists of an unformed maze made out of a grid of 
+            wall tiles with the specified size. It depends on Pillow, a PIL fork (https://pillow.readthedocs.io/en/4.2.x/index.html).
+            The maze can be formed than by two different algorithms, modified Prim's and Growing Tree. A short 
+            explanation of the used algorithms (and many more) can be found at http://www.astrolog.org/labyrnth/algrithm.htm
+            A more in depth explanation can be found in this article series:
+            Prims Algorithm: http://weblog.jamisbuck.org/2011/1/10/maze-generation-prim-s-algorithm
+            Growing Tree Algorithm: http://weblog.jamisbuck.org/2011/1/27/maze-generation-growing-tree-algorithm
+            
+            This classes raises Maze Error on invalid input; when a maze get the command to change after it was formed or
+            if the maze gets the command to make a graphical representation of an unformed maze.
+            
+            Content:
+            
+            subclass    Maze Tile:  Structure representing a single tile.
+            subclass    Maze Error: Custom Error
+            
+            private function    __init_(int,int,int = 10,string = A_Maze):    this function takes two integers for size(X,Y)
+                                                                              one optional integer for the pixel size of one tile
+                                                                              and an optional string for the name of the Maze.
+            private function    __str__; __repr()__ :  Housekeeping
+            private function    getNextTiles(int,int):  returns a list of tiles
+                                                        function finding available tiles to a specified tile
+            private function    connectTile(tileA,tileB): connects specified tiles to make a way
+            private function    makeEntryandExit(): creates a entry and an exit into the maze
+            
+            public function     makeMazeSimple:():  returns True
+                                                    This function takes the unformed maze and forms it with the modified Prim's
+                                                    algorithm. This results in an simple to solve maze. This algorithms is less 
+                                                    efficient than the Growing Tree algorithm.
+            public function     makeMazeGrowingTree(int,int): returns True
+                                                              This algorithm forms the maze with the Growing Tree algorithmus
+                                                              takes two integer values between 0 and 100, with the first 
+                                                              integer bigger than the second one. These are are weights defining the 
+                                                              behavior of the algorithm. (see link above)
+            public function     makePP():   Returns an image object.
+                                            This function takes a formed maze and creates a picture with the help of Pillow.
+                                            The size of the picture depends on the chosen pixel size per tiles and the amount of tiles
+                                            
+            public function     saveImage(image,string = None): Specialized implementation of Pillow's Save function. Takes an image and
+                                                                saves it with an (optional) given name. If no name is given, a name will
+                                                                be constructed.
+                                            
+                                                              
+    """
 
     class MazeTile:
         
@@ -32,7 +76,7 @@ class Maze:
     
     def __init__(self, dimensionX, dimensionY, pixelSizeOfTile = 10, mazeName = "A_Maze"):
         
-        if not isinstance(dimensionX, int) or not isinstance(dimensionY, int):
+        if not isinstance(dimensionX, int) or not isinstance(dimensionY, int) or not isinstance(pixelSizeOfTile, int) or not isinstance(mazeName, str):
             
             raise self.MazeError("Maze dimensions have to be an integer > 0")
             
