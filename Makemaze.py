@@ -4,7 +4,6 @@
 """
 from PIL import Image,ImageDraw
 import random as rnd
-import time
 
 class Maze:
     """ This Class represents a Maze. After init it consists of an unformed maze made out of a nested list (grid) of 
@@ -68,7 +67,7 @@ class Maze:
             
             
             self.workedOn = False   # Needed for certain generation algorithm to define if a tile as already be touched
-            self.wall = isWall      # Is the tile a wall (True) or a floor (False)
+            self.wall = isWall      # Is the tile a wall (True) or a floor (False). Mostly for future proving
             self.coordinateX = X    # Defining the X coordinate
             self.coordinateY = Y    # Defining the Y coordinate 
             self.connectTo = []     # A list of strings that describe the tiles this tile is connected to (North, South, West, East)
