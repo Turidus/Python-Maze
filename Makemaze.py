@@ -357,7 +357,7 @@ class Maze:
                 like a reversed backtrace 
                 http://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking
                 
-            I personally like a 90/30 distribution but feel free to experiment yourself.
+            I personally like a 90/50 distribution but feel free to experiment yourself.
              
             A short description of what happens:
             At first one untouched tile is randomly chosen, it is transformed to a
