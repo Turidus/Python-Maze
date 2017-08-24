@@ -1,4 +1,4 @@
-from PIL import Image,ImageDraw, ImageSequence
+from PIL import Image,ImageDraw
 import random as rnd
 import time
 
@@ -241,9 +241,9 @@ class Maze:
             if choice_ <= weightLast:
                 nextTile = choiceList[-1]
             elif weightLast < choice_ < weightFirst:
-                nextTile = choiceList[0]
-            else:
                 nextTile=rnd.choice(choiceList)
+            else:
+                nextTile = choiceList[0]
             
             neiList = []
             
@@ -262,9 +262,7 @@ class Maze:
                 self.connectTiles(nextTile,connectTile)
                 
         
-              
             
-           
         self.makeEntryandExit()
         self.MazeIsDone = True
         return True
@@ -327,7 +325,7 @@ class Maze:
 
 timer = time.time()
 newMaze = Maze(100,100)
-newMaze.makeMazeGrowTree(80,90)
+newMaze.makeMazeGrowTree(80.50)
 print(time.time() - timer)
+newMaze.makePP().show
 #newMaze.saveImage(newMaze.makePP())
-
