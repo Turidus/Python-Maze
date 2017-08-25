@@ -14,7 +14,7 @@ class Maze:
             The finale internal representation of the maze is a nested list of touched floor tiles that are connected to at 
             least one neighbour. Walls will be added by the graphic representation. 
             
-            The maze can be formed than by two different algorithms, modified Prim's and Growing Tree. A short 
+            The maze can be formed by two different algorithms, modified Prim's and Growing Tree. A short 
             explanation of the used algorithms (and many more) can be found at http://www.astrolog.org/labyrnth/algrithm.htm
             A more in depth explanation can be found in this article series:
             Prims Algorithm: http://weblog.jamisbuck.org/2011/1/10/maze-generation-prim-s-algorithm
