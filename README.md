@@ -1,4 +1,5 @@
-A maze generator in Python 3.6 Depends on Pillow https://pillow.readthedocs.io/en/4.2.x/index.html
+A maze generator in Python 3.6 
+Depends on Pillow https://pillow.readthedocs.io/en/4.2.x/index.html
 
 This project provides a class called Maze. It can be of arbitary (two dimensional) size. 
 After initilizing the class with the desired size, it can be formed into a maze by different algorithms. The default function 
