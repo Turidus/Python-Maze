@@ -1,9 +1,10 @@
 """
-    Written by turidus (github.com/turidus) 
+    Written by turidus (github.com/turidus) in python 3.6.0
     Dependend on Pillow, a fork of PIL (https://pillow.readthedocs.io/en/4.2.x/index.html)
 """
 from PIL import Image,ImageDraw
 import random as rnd
+import re
 
 class Maze:
     """ This Class represents a Maze. After init it consists of an unformed maze made out of a nested list (grid) of 
@@ -30,11 +31,12 @@ class Maze:
             private function    __init_(int,int,int = 10,string = A_Maze):    this function takes two integers for size(X,Y)
                                                                               one optional integer for the pixel size of one tile
                                                                               and an optional string for the name of the Maze.
-            private function    __str__; __repr()__ :  Housekeeping
-            private function    getNextTiles(int,int):  returns a list of tiles
-                                                        function finding available tiles to a specified tile
-            private function    connectTile(tileA,tileB): connects specified tiles to make a way
-            private function    makeEntryandExit(): creates a entry and an exit into the maze
+            private function    __str__:    Returns a formated string with as many columns and lines as sizeX and sizeY respectivly.
+                                            The cells are filled with the status of the tile (workedOn, True or False)
+            private function    __repr()__ :    Returns a string with the size of the Maze as description 
+            private function    __getNextTiles(int,int):  returns a list of available tiles to the specified coordinates
+            private function    __connectTiles(tileA,tileB): connects specified tiles to make a way
+            private function    __makeEntryandExit(): creates a entry and an exit into the maze
             
             public function     makeMazeSimple:():  returns True
                                                     This function takes the unformed maze and forms it with the modified Prim's
@@ -50,10 +52,8 @@ class Maze:
                                             The size of the picture depends on the chosen pixel size per tiles and the amount of tiles
                                             
             public function     saveImage(image,string = None): Specialized implementation of Pillow's Save function. Takes an image and
-                                                                saves it with an (optional) given name. If no name is given, a name will
-                                                                be constructed.
-                                            
-                                                              
+                                                                saves it with an (optional) given name/path object and format. 
+                                                                If no name is given, a name will be constructed.
     """
 
     class MazeTile:
@@ -74,7 +74,7 @@ class Maze:
 
             
         def __str__(self):
-            return str(self.wall)
+            return str(self.workedOn)
             
         
         def __repr__(self):
@@ -98,13 +98,21 @@ class Maze:
         
         """
         
-        if not isinstance(dimensionX, int) or not isinstance(dimensionY, int) or not isinstance(pixelSizeOfTile, int) or not isinstance(mazeName, str): 
-                                                                                                                                #Checking input errors
+        if not isinstance(dimensionX, int) or not isinstance(dimensionY, int):      #Checking input errors
             raise self.MazeError("Maze dimensions have to be an integer > 0")
             
-        if dimensionX < 1 or dimensionY < 1: # Checking input errors
-            
+        
+        if dimensionX < 1 or dimensionY < 1:
             raise self.MazeError("Maze dimensions have to be an integer > 0")
+        
+        
+        if not isinstance(pixelSizeOfTile, int) or pixelSizeOfTile <= 0:
+            raise self.MazeError("the size of the tiles has to be an integer > 0")
+            
+        if not isinstance(mazeName, str):
+            raise self.MazeError("The name of the Maze has to be a string")
+        
+        
             
         self.sizeX = dimensionX     #The size of the Maze in the X direction (from left to right)
         self.sizeY = dimensionY     #The size of the Maze in the Y direction (from up to down)
@@ -154,7 +162,7 @@ class Maze:
             
         return "This is a Maze with width of {} and height of {}".format(self.sizeX , self.sizeY)
     
-    def getNextTiles(self,X,Y): 
+    def __getNextTiles(self,X,Y): 
         """ 
             This function collects all nearest neighbour of a tile. Important for tiles that lay on a border.
             
@@ -195,7 +203,7 @@ class Maze:
         
         return templist
         
-    def connectTiles(self, tileA, tileB):
+    def __connectTiles(self, tileA, tileB):
         """   Takes two tiles and returns True if successful. 
               Connect the two given tiles to make a way. This is used to decide where walls shouldn't be in the final picture.
               The Tile connectTo field is appended by the compass direction of the tile it connects to (N,S,E,W).
@@ -229,7 +237,7 @@ class Maze:
         
         return True
         
-    def makeEntryandExit(self,random = False):
+    def __makeEntryandExit(self,random = False):
         """ Takes an optional boolean
             If random is set to True, it chooses the entry and exit field randomly.
             It set to False, it chooses the left upper most and right lower most corner as entry. 
@@ -280,7 +288,7 @@ class Maze:
         startingtile = rnd.choice(rnd.choice(self.mazeList))    #A randomly chosen tile that acts as starting tile
         
         startingtile.workedOn = True    #This flag always gets set when a tile has between worked on.
-        frontList += self.getNextTiles(startingtile.coordinateX, startingtile.coordinateY)  #populates the frontier
+        frontList += self.__getNextTiles(startingtile.coordinateX, startingtile.coordinateY)  #populates the frontier
                                                                                                 #list with the first 2-4 tiles 
         
 
@@ -295,7 +303,7 @@ class Maze:
             nextTile = frontList.pop()
             nextTile.workedOn = True
             
-            tempList = self.getNextTiles(nextTile.coordinateX,nextTile.coordinateY)
+            tempList = self.__getNextTiles(nextTile.coordinateX,nextTile.coordinateY)
             
 
             for tile in tempList: #Finds all neighbours who are touched and all that are a untouched
@@ -318,9 +326,9 @@ class Maze:
             else:
                 connectTile = workedOnList[0]
             
-            self.connectTiles(nextTile,connectTile)
+            self.__connectTiles(nextTile,connectTile)
             
-        self.makeEntryandExit()     #Finally produces a Entry and an Exit
+        self.__makeEntryandExit()     #Finally produces a Entry and an Exit
         self.MazeIsDone = True
         return True
             
@@ -357,7 +365,7 @@ class Maze:
                 like a reversed backtrace 
                 http://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking
                 
-            I personally like a 90/50 distribution but feel free to experiment yourself.
+            I personally like a 80/70 distribution but feel free to experiment yourself.
              
             A short description of what happens:
             At first one untouched tile is randomly chosen, it is transformed to a
@@ -392,7 +400,7 @@ class Maze:
             
             neiList = []    #List of neighbours
             
-            for tile in self.getNextTiles(nextTile.coordinateX,nextTile.coordinateY):
+            for tile in self.__getNextTiles(nextTile.coordinateX,nextTile.coordinateY):
                 
                 if not tile.workedOn:
                     neiList.append(tile)
@@ -404,11 +412,11 @@ class Maze:
                 connectTile = rnd.choice(neiList)
                 connectTile.workedOn = True
                 choiceList.append(connectTile)
-                self.connectTiles(nextTile,connectTile)
+                self.__connectTiles(nextTile,connectTile)
                 
         
             
-        self.makeEntryandExit() #finally marking an Entry and an Exit
+        self.__makeEntryandExit() #finally marking an Entry and an Exit
         self.MazeIsDone = True
         return True
         
@@ -436,6 +444,14 @@ class Maze:
         for row in self.mazeList: #Iterates over all tiles
                 
                 for tile in row:
+                    #Why (x + 1) * 2 - 1) ? 
+                    # (x + 1) because the numbering of tiles starts with 0
+                    
+                    # * 2 because between every floor tile lays a wall tile, doppling the tiles in the picture.
+                    # floor tiles lay on the grid coordinates 1,3,5,7 .. in the finale picture, on 0,2,4 ... 
+                    # lay either wall tiles or connecting tiles.
+                    
+                    # - 1 to offset the tile to an uneven postition
                     
                     x = ((tile.coordinateX  + 1) * 2 - 1) * self.pixel
                     y = ((tile.coordinateY  + 1) * 2 - 1) * self.pixel
@@ -457,23 +473,38 @@ class Maze:
         return image #returns an image object
         
                         
-    def saveImage(self,image,name = None):
+    def saveImage(self,image,name = None,format = None):
         """Specialized implementation of Pillow's Save function. Takes an image and
-            saves it with an (optional) given name. If no name is given, a name will
-            be constructed.
+            saves it with an (optional) given name or format. Either this name has contains a
+            file extension that is known to Pillow or format has to be specified.
             
-            The name is constructed out of the Maze Name and its size in x and y direction
+            This name has to fullfile all filename rules on the given system!
+            
+            The name can be a path object, then the format argument needs to be specified.
+            
+            Details here: https://pillow.readthedocs.io/en/4.2.x/reference/Image.html#PIL.Image.Image.save
+            
+            If no name is given, a name will be constructed and a png file created.
+            The name is constructed out of the maze name and its pixel size in x and y direction.
+            To make sure that the image can be saved, all chars that are not letters, numbers or underscores
+            will be removed from the maze name before adding the file extentsion. 
+            This will not be done on names that are passed as arguments!
         """
         if name == None:
+            tempName = re.sub(r'[^a-zA-Z0-9_]', '', self.name)  #Regular expression to make name filename safe
+            if len(tempName) > 120:                             #Limiting the length of the filename
+                tempName = tempName[0:120]
             size = (self.pixel * self.sizeX, self.pixel * self.sizeY)
-            name = self.name +"-"+ str(size[0]) + "_" + str(size[1]) + ".png"
-        image.save(name)
+            name = tempName +"-"+ str(size[0]) + "_" + str(size[1]) + ".png"
+
+            
+        image.save(name,format)
                     
         return True
 
 #Examples:
-#newMaze = Maze(100,100)
-#newMaze.makeMazeGrowTree(90.30)
+#newMaze = Maze(12,12)
+#newMaze.makeMazeGrowTree(100.80)
 #mazeImage = newMaze.makePP()
 #mazeImage.show() #can or can not work, see Pillow documentation 
 #newMaze.saveImage(mazeImage)
