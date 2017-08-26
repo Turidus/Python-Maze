@@ -2,7 +2,7 @@
     Written by turidus (github.com/turidus) in python 3.6.0
     Dependend on Pillow, a fork of PIL (https://pillow.readthedocs.io/en/4.2.x/index.html)
 """
-from PIL import Image,ImageDraw
+from PIL import Image,ImageDraw, ImageColor
 import random as rnd
 import re
 
@@ -420,17 +420,75 @@ class Maze:
         self.MazeIsDone = True
         return True
         
-    def makePP(self):
+    def makePP(self,mode = "1",colorWall = 0,colorFloor = 1):
         """
         This generates and returns a Pillow Image object. It takes into account the size of the maze and
             the size of the the indivual pixel defined with pixelSizeOfTile. Defaults to 10 pixel.
             
-            It create this picture by drawing a white square with the defined size for every tile in
-            the mazeList on a black background. It then proceeds to draw in the connections this tile has by checking
+            It create this picture by drawing a square with the defined size for every tile in
+            the mazeList on a background. It then proceeds to draw in the connections this tile has by checking
             tile,connectedTo.
+            
+            The default mode this picture is created is 1 bit per pixel and allows only for white (1) and black(0)
+            pictures.
+            
+            The mode and colors can be changed to RGB, but this will increase the picture size massivly (24 times).
+            
+            Allowed modes:
+            "1":    1 bit per pixel, colors are 1-bit intergers. 1 for white and 0 for black
+            "RGB":  3x8 bit per pixels. colors can be given either as three 8 bit tuples (0,0,0)-(255,255,255)
+                    or html color strings.
+                    
+            
+            
+            Only change this if you really want to.
+
+            
+            Raises MazeError if the maze is not already finished and on wrong input.
         """
+        if mode == "1":                                                         #Checking for input errors
+            if colorWall in (1,0) and colorFloor in (1,0):
+                pass
+            else:
+                raise self.MazeError("In mode \'1\' the color vaules have to be 0 for black or 1 for white")
+                
+        elif mode == "RGB":
+            
+            try:
+                if isinstance(colorWall,str):
+                    colorWall = ImageColor.getrgb(colorWall)
+                
+                elif isinstance(colorWall,tuple) and len(colorWall) == 3:
+                    for i in colorWall:
+                        if not isinstance(i,int) or (i < 0 or i > 255):
+                            raise self.MazeError("RGB mode excepts only 8-bit integers")
+                
+                else:
+                    raise self.MazeError("RGB Mode only excepts color strings or 3x8bit tulpels")    
+                
+                    
+                if isinstance(colorFloor,str):
+                    colorFloor = ImageColor.getrgb(colorFloor)
+                
+                elif isinstance(colorFloor,tuple) and len(colorFloor) == 3:
+                    for i in colorFloor:
+                        if not isinstance(i,int) or (i < 0 or i > 255):
+                            raise self.MazeError("RGB mode excepts only 8-bit integers")
+                
+                else:
+                    raise self.MazeError("RGB Mode only excepts color strings or 3x8bit tulpels") 
+                    
+            except ValueError:
+                raise self.MazeError("RGB mode excepts 140 common html color strings. This was not one of them")
+                
+            
+                
+        else: raise self.MazeError("The mode was not recognized. Only \'1\' or \'RGB\' are allowed")  #Finished looking for input errors.
+                
+            
         
-        if len(self.mazeList) == 0:
+        
+        if not self.MazeIsDone:
             raise self.MazeError("There is no Maze yet")
         
         size = (self.pixel * (self.sizeX * 2 + 1), self.pixel * (self.sizeY * 2 + 1)) 
@@ -438,7 +496,7 @@ class Maze:
                 # multiplying it with 2 to account for walls or connections and adds one for offset
         
 
-        image = Image.new("1",size,color = 0) #Generates a Pillow Image object
+        image = Image.new(mode,size,colorWall) #Generates a Pillow Image object
         drawImage = ImageDraw.Draw(image)
         
         for row in self.mazeList: #Iterates over all tiles
@@ -455,20 +513,20 @@ class Maze:
                     
                     x = ((tile.coordinateX  + 1) * 2 - 1) * self.pixel
                     y = ((tile.coordinateY  + 1) * 2 - 1) * self.pixel
-                    drawImage.rectangle([x, y, x + self.pixel -1, y + self.pixel -1], fill = 1)
+                    drawImage.rectangle([x, y, x + self.pixel -1, y + self.pixel -1], fill = colorFloor)
 
                     
                     if "N" in tile.connectTo:
-                        drawImage.rectangle([x, y - self.pixel, x + self.pixel - 1, y - 1], fill = 1)
+                        drawImage.rectangle([x, y - self.pixel, x + self.pixel - 1, y - 1], fill = colorFloor)
                         
                     if "S" in tile.connectTo:
-                        drawImage.rectangle([x, y + self.pixel, x + self.pixel - 1, y + self.pixel + self.pixel - 1], fill = 1)
+                        drawImage.rectangle([x, y + self.pixel, x + self.pixel - 1, y + self.pixel + self.pixel - 1], fill = colorFloor)
                         
                     if "W" in tile.connectTo:
-                        drawImage.rectangle([x - self.pixel, y, x - 1, y + self.pixel - 1], fill = 1)
+                        drawImage.rectangle([x - self.pixel, y, x - 1, y + self.pixel - 1], fill = colorFloor)
         
                     if "E" in tile.connectTo:
-                        drawImage.rectangle([x + self.pixel, y, x + self.pixel + self.pixel - 1, y + self.pixel - 1], fill = 1)
+                        drawImage.rectangle([x + self.pixel, y, x + self.pixel + self.pixel - 1, y + self.pixel - 1], fill = colorFloor)
 
         return image #returns an image object
         
@@ -505,6 +563,7 @@ class Maze:
 #Examples:
 #newMaze = Maze(12,12)
 #newMaze.makeMazeGrowTree(100.80)
-#mazeImage = newMaze.makePP()
+#mazeImageBW = newMaze.makePP()
+#mazeImageColor = newMaze.makePP(mode="RGB",colorWall = "black",colorFloor = (120,0,120))
 #mazeImage.show() #can or can not work, see Pillow documentation 
-#newMaze.saveImage(mazeImage)
+#newMaze.saveImage(mazeImageBW)
