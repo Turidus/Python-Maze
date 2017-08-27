@@ -36,6 +36,7 @@ class Maze:
             private function    __repr()__ :    Returns a string with the size of the Maze as description 
             private function    __getNextTiles(int,int):  returns a list of available tiles to the specified coordinates
             private function    __connectTiles(tileA,tileB): connects specified tiles to make a way
+            private function    __connectTilesWithString(tile,string): connects two tiles dependend on one tile and a given connection string.
             private function    __makeEntryandExit(): creates a entry and an exit into the maze
             
             public function     makeMazeSimple:():  returns True
@@ -47,6 +48,9 @@ class Maze:
                                                               takes two integer values between 0 and 100, with the first 
                                                               integer bigger than the second one. These are are weights defining the 
                                                               behavior of the algorithm. (see link above)
+            public function     makeMazeBraiding(int): This function workes as braider on a formed maze. Can either work as dead end remover (-1)
+                                                        or produce random loops (0-100), decided by the weight.
+                                                        
             public function     makePP():   Takes an optional string for color mode and two optional argument defining the color of wall and floor.
                                             Returns an image object.
                                             This function takes a formed maze and creates a picture with the help of Pillow.
@@ -75,7 +79,7 @@ class Maze:
 
             
         def __str__(self):
-            return str(self.workedOn)
+            return str(self.workedOn)+" "+str(self.coordinateX)+" "+str(self.coordinateY)
             
         
         def __repr__(self):
@@ -238,6 +242,60 @@ class Maze:
         
         return True
         
+    def __connectTilesWithString(self,tile,direction):
+        """Takes one tile and a direction string (N,S,W,E) to connect two tiles. Returns True.
+                Raises MazeError if a tile wants to connect out of the maze.
+                Make sure that this only connects unconnected tiles
+        """
+
+        if direction == "N":
+
+            try:
+
+                if tile.coordinateY == 0:
+                    raise IndexError
+                    
+                self.mazeList[tile.coordinateY -1][tile.coordinateX].connectTo.append("S")
+                tile.connectTo.append("N")
+                
+            except(IndexError):
+                raise self.MazeError("This tile can not connect in this direction")
+        
+        elif direction == "S":
+
+            try:
+                self.mazeList[tile.coordinateY + 1][tile.coordinateX].connectTo.append("N")
+                tile.connectTo.append("S")
+                
+            except(IndexError):
+                raise self.MazeError("This tile can not connect in this direction")     
+               
+        elif direction == "W":
+            
+            try:
+                if tile.coordinateX == 0:
+                    raise IndexError
+                self.mazeList[tile.coordinateY][tile.coordinateX - 1].connectTo.append("E")
+                tile.connectTo.append("W")   
+                             
+            except(IndexError):
+                raise self.MazeError("This tile can not connect in this direction")
+                
+        elif direction == "E":
+            
+            try:
+                self.mazeList[tile.coordinateY][tile.coordinateX + 1].connectTo.append("W")
+                tile.connectTo.append("E")
+                
+            except(IndexError):
+                raise self.MazeError("This tile can not connect in this direction")
+                
+        else:
+            raise self.MazeError("This was not a direction string")
+            
+        return True
+        
+    
     def __makeEntryandExit(self,random = False):
         """ Takes an optional boolean
             If random is set to True, it chooses the entry and exit field randomly.
@@ -330,11 +388,11 @@ class Maze:
             self.__connectTiles(nextTile,connectTile)
             
         self.__makeEntryandExit()     #Finally produces a Entry and an Exit
-        self.MazeIsDone = True
+        self.mazeIsDone = True
         return True
             
    
-    def makeMazeGrowTree(self,weightFirst = 90,weightLast = 30):
+    def makeMazeGrowTree(self,weightHigh = 99,weightLow = 97):
         
         """Algorithm to form the final maze. It works like the Grow Tree algorithm
             http://weblog.jamisbuck.org/2011/1/27/maze-generation-growing-tree-algorithm
@@ -346,31 +404,35 @@ class Maze:
             This runs much faster than makeMazeSimple and should be used as default.
             
             This algorithm can be modified with two weights between 0 and 100. 
-            weightFirst should always be higher or equal to weightLast.
+            weightHigh should always be higher or equal to weightLow.
             
-            Three extrems:
-            
-            weightFirst == weightlast == 0:
+            Three extrems:      
+                      
+            weightHigh == 100, weightLow == 100:
                 
-                The resulting maze will have a lot of long passageways (high river factor) and
-                will be very easy to solve.
+                The algorithm always takes the the newst tile out of the choice list and behaves
+                like a reversed backtrace. Very hard to solve
+                http://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking
             
-            weightFirst == 100, weightLast == 0
+            weightHigh == 100, weightLow == 0
                 
                 The algorithm always chooses the next tile randomly
                 and behaves like Prim's algorithm, but runs much faster.
+                Solving is less hard than 100/100
+
                 
-            weightFirst == 100, weightLast == 100:
+            weightHigh == weightLow == 0:
                 
-                The algorithm always takes the the first tile out of the choice list and behaves
-                like a reversed backtrace 
-                http://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking
+                The algorithm always chooses the oldest tile in the list
+                The resulting maze will have a lot of long passageways (high river factor) and
+                will be trivial to solve.
                 
-            I personally like a 80/70 distribution but feel free to experiment yourself.
+                
+            I personally like a 99/97 distribution but feel free to experiment yourself.
              
             A short description of what happens:
             At first one untouched tile is randomly chosen, it is transformed to a
-            touched tile and it is out into a list of available tiles.
+            touched tile and it is put into a list of available tiles.
             
             From this list is a tile chosen, how depends on the weights.
             If this tile has no untouched neighbours it is removed from the list of available tiles.
@@ -392,9 +454,9 @@ class Maze:
             
             choice_ = rnd.random() * 100    #This random choice determines how the next tile is chosen
             
-            if choice_ <= weightLast:  
+            if choice_ <= weightLow:  
                 nextTile = choiceList[-1]
-            elif weightLast < choice_ < weightFirst:
+            elif weightLow < choice_ < weightHigh:
                 nextTile=rnd.choice(choiceList)
             else:
                 nextTile = choiceList[0]
@@ -418,7 +480,60 @@ class Maze:
         
             
         self.__makeEntryandExit() #finally marking an Entry and an Exit
-        self.MazeIsDone = True
+        self.mazeIsDone = True
+        return True
+        
+    def makeMazeBraided(self, weightBraid = -1):
+        """This function produces a braided maze by either removing dead ends or by producing
+            random loops. It takes an Interger betwee -1 and 100.
+            
+            weightBraid decides how many percent of the tiles should creat loops. (0-100)
+            If set to -1, it will braid the maze by removing all and only dead ends
+            
+            Raises a MazeError on wrong input.
+        """
+        if not self.mazeIsDone:
+            raise self.MazeError("Maze needs to be formed first")
+
+        if not isinstance(weightBraid, int) or weightBraid <  -1 or weightBraid > 100:
+            raise self.MazeError("weightBraid has to be >= -1")
+        
+        elif weightBraid == -1:
+            for row in self.mazeList:
+                for tile in row:
+                    if len(tile.connectTo) == 1: #All tiles that are only connected to one other tile are dead ends
+    
+                        directionList=["N","S","W","E"]
+                        directionList.remove(tile.connectTo[0])
+                        
+                        rnd.shuffle(directionList) #Randomizing connections
+                        for direction in directionList:
+                            
+                            try:
+                                self.__connectTilesWithString(tile,direction)
+                                break
+                                
+                            except(self.MazeError):
+                                pass
+        else:
+            for row in self.mazeList:
+                for tile in row:
+                    if weightBraid >= (rnd.random() * 100): #Weight decides if this tiles gets a addtional connection
+                        
+                        directionList=["N","S","W","E"]
+                        for connection in tile.connectTo:
+                            directionList.remove(connection)
+                             
+                        rnd.shuffle(directionList) #Randomizing connections
+                        for direction in directionList:
+                            
+                            try:
+                                self.__connectTilesWithString(tile,direction)
+                                break
+                                
+                            except(self.MazeError):
+                                pass
+
         return True
         
     def makePP(self,mode = "1",colorWall = 0,colorFloor = 1):
@@ -428,7 +543,7 @@ class Maze:
             
             It create this picture by drawing a square with the defined size for every tile in
             the mazeList on a background. It then proceeds to draw in the connections this tile has by checking
-            tile,connectedTo.
+            tile,connectTo.
             
             The default mode this picture is created is 1 bit per pixel and allows only for white (1) and black(0)
             pictures.
@@ -439,12 +554,9 @@ class Maze:
             "1":    1 bit per pixel, colors are 1-bit intergers. 1 for white and 0 for black
             "RGB":  3x8 bit per pixels. colors can be given either as three 8 bit tuples (0,0,0)-(255,255,255)
                     or html color strings.
-                    
             
             
-            Only change this if you really want to.
 
-            
             Raises MazeError if the maze is not already finished and on wrong input.
         """
         if mode == "1":                                                         #Checking for input errors
@@ -489,7 +601,7 @@ class Maze:
             
         
         
-        if not self.MazeIsDone:
+        if not self.mazeIsDone:
             raise self.MazeError("There is no Maze yet")
         
         size = (self.pixel * (self.sizeX * 2 + 1), self.pixel * (self.sizeY * 2 + 1)) 
@@ -562,13 +674,19 @@ class Maze:
         return True
 
 #Examples:
-newMaze = Maze(12,12)
-newMaze.makeMazeGrowTree(90.80)
-mazeImageBW = newMaze.makePP()
+#newMaze = Maze(100,100)
+#newMaze.makeMazeGrowTree(weightHigh = 99, weightLow = 97)
+#mazeImageBW = newMaze.makePP()
 #mazeImage.show() #can or can not work, see Pillow documentation. For debuging only
-newMaze.saveImage(mazeImageBW)
+#newMaze.saveImage(mazeImageBW)
 
-newMaze = Maze(12,12,mazeName="ColorMaze")
-newMaze.makeMazeGrowTree(90.80)
-mazeImageColor = newMaze.makePP(mode="RGB",colorWall = "yellow",colorFloor = (250,0,20))
-newMaze.saveImage(mazeImageColor)
+#newMaze = Maze(50,50,mazeName="ColorMaze")
+#newMaze.makeMazeGrowTree(90.80)
+#mazeImageColor = newMaze.makePP(mode="RGB",colorWall = "yellow",colorFloor = (250,0,20))
+#newMaze.saveImage(mazeImageColor)
+
+newMaze = Maze(20,20,mazeName = "BraidedMaze")
+newMaze.makeMazeGrowTree(weightHigh = 100, weightLow = 95)
+newMaze.makeMazeBraided(10)
+mazeImageBW = newMaze.makePP()
+newMaze.saveImage(mazeImageBW)
