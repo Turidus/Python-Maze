@@ -6,5 +6,7 @@ This project provides a class called Maze. It can be of arbitary (two dimensiona
 After initilizing the class with the desired size, it can be formed into a maze by different algorithms. The default function 
 implements the growing tree algorithm http://weblog.jamisbuck.org/2011/1/27/maze-generation-growing-tree-algorithm.
 
+Every maze can also be braided, either by removing all dead ends or by producing random loops.
+
 The formed maze can be parsed into an image which can be saved as picture file (default format is .png). The size of the 
 picture will be (sizeOfMaze * 2 + 1) multiplied with the set pixelsize of one tile.
