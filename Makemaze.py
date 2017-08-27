@@ -47,7 +47,8 @@ class Maze:
                                                               takes two integer values between 0 and 100, with the first 
                                                               integer bigger than the second one. These are are weights defining the 
                                                               behavior of the algorithm. (see link above)
-            public function     makePP():   Returns an image object.
+            public function     makePP():   Takes an optional string for color mode and two optional argument defining the color of wall and floor.
+                                            Returns an image object.
                                             This function takes a formed maze and creates a picture with the help of Pillow.
                                             The size of the picture depends on the chosen pixel size per tiles and the amount of tiles
                                             
@@ -552,7 +553,7 @@ class Maze:
             tempName = re.sub(r'[^a-zA-Z0-9_]', '', self.name)  #Regular expression to make name filename safe
             if len(tempName) > 120:                             #Limiting the length of the filename
                 tempName = tempName[0:120]
-            size = (self.pixel * self.sizeX, self.pixel * self.sizeY)
+            size = (self.pixel * (self.sizeX * 2 + 1), self.pixel * (self.sizeY * 2 + 1))
             name = tempName +"-"+ str(size[0]) + "_" + str(size[1]) + ".png"
 
             
@@ -561,9 +562,13 @@ class Maze:
         return True
 
 #Examples:
-#newMaze = Maze(12,12)
-#newMaze.makeMazeGrowTree(100.80)
-#mazeImageBW = newMaze.makePP()
-#mazeImageColor = newMaze.makePP(mode="RGB",colorWall = "black",colorFloor = (120,0,120))
-#mazeImage.show() #can or can not work, see Pillow documentation 
-#newMaze.saveImage(mazeImageBW)
+newMaze = Maze(12,12)
+newMaze.makeMazeGrowTree(90.80)
+mazeImageBW = newMaze.makePP()
+#mazeImage.show() #can or can not work, see Pillow documentation. For debuging only
+newMaze.saveImage(mazeImageBW)
+
+newMaze = Maze(12,12,mazeName="ColorMaze")
+newMaze.makeMazeGrowTree(90.80)
+mazeImageColor = newMaze.makePP(mode="RGB",colorWall = "yellow",colorFloor = (250,0,20))
+newMaze.saveImage(mazeImageColor)
