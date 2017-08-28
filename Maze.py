@@ -1,6 +1,6 @@
 """
     Written by turidus (github.com/turidus) in python 3.6.0
-    Dependend on Pillow, a fork of PIL (https://pillow.readthedocs.io/en/4.2.x/index.html)
+    Dependend on Pillow 4.2, a fork of PIL (https://pillow.readthedocs.io/en/4.2.x/index.html)
 """
 from PIL import Image,ImageDraw, ImageColor
 import random as rnd
@@ -28,9 +28,8 @@ class Maze:
             private subclass    Maze Tile:  Structure representing a single tile.
             private subclass    Maze Error: Custom Error
             
-            private function    __init_(int,int,int = 10,string = A_Maze):    this function takes two integers for size(X,Y)
-                                                                              one optional integer for the pixel size of one tile
-                                                                              and an optional string for the name of the Maze.
+            private function    __init_(int,int,string):    this function takes two integers for size(X,Y)
+                                                            and an optional string for the name of the Maze.
             private function    __str__:    Returns a formated string with as many columns and lines as sizeX and sizeY respectivly.
                                             The cells are filled with the status of the tile (workedOn, True or False)
             private function    __repr()__ :    Returns a string with the size of the Maze as description 
@@ -51,23 +50,26 @@ class Maze:
             public function     makeMazeBraiding(int): This function workes as braider on a formed maze. Can either work as dead end remover (-1)
                                                         or produce random loops (0-100), decided by the weight.
                                                         
-            public function     makePP():   Takes an optional string for color mode and two optional argument defining the color of wall and floor.
-                                            Returns an image object.
-                                            This function takes a formed maze and creates a picture with the help of Pillow.
-                                            The size of the picture depends on the chosen pixel size per tiles and the amount of tiles
+            public function     makePP(var,int,int,int):    Takes an optional string for color mode and two optional argument 
+                                                            defining the color of wall and floor.
+                                                            
+                                                            Returns an image object.
+                                                            
+                                                            This function takes a formed maze and creates a picture with the help of Pillow.
+                                                            The size of the picture depends on the chosen pixelSizePerTiles and the amount of tiles
                                             
-            public function     saveImage(image,string = None): Specialized implementation of Pillow's Save function. Takes an image and
+            public function     saveImage(image,string): Specialized implementation of Pillow's Save function. Takes an image and
                                                                 saves it with an (optional) given name/path object and format. 
                                                                 If no name is given, a name will be constructed.
     """
 
-    class MazeTile:
+    class __MazeTile:
         """ This subclass is a structure representing a single tile inside the Maze. This tile has a X and Y coordinate which are specified on generation.
             It can also be specified if the tile is a wall or a floor.
         """
         
         def __init__(self, X, Y, isWall = True):
-            """Generator for the MazeTile class
+            """Generator for the __MazeTile class
             """
             
             
@@ -79,14 +81,14 @@ class Maze:
 
             
         def __str__(self):
-            return str(self.workedOn)+" "+str(self.coordinateX)+" "+str(self.coordinateY)
+            return "X: " + str(self.coordinateX)+" "+ "Y: " + str(self.coordinateY) + " " + str(self.connectTo)
             
         
         def __repr__(self):
             
-            return "Mazetile, wall = {}, worked on = {} ,x = {}, y = {} ---".format(self.wall , self.workedOn, self.coordinateX, self.coordinateY)
+            return "__MazeTile, wall = {}, worked on = {} ,x = {}, y = {} ---".format(self.wall , self.workedOn, self.coordinateX, self.coordinateY)
             
-    class MazeError(Exception):
+    class __MazeError(Exception):
         """ Custom Maze Error, containing a string describing the error that occurred.
         """
         def __init__(self, value):
@@ -96,39 +98,36 @@ class Maze:
             
     
     
-    def __init__(self, dimensionX, dimensionY, pixelSizeOfTile = 10, mazeName = "A_Maze"):
+    
+    
+    def __init__(self, dimensionX, dimensionY,mazeName = "A_Maze"):
         """Generator for the Maze class.
-           It takes two integer to decide the size of the maze (X and Y), an optional integer two decide how many pixel a tile is wide in the finale
-           picture. It also takes an optional tile to determine the name of the maze.
+           It takes two integer to decide the size of the maze (X and Y). It also takes an optional string to determine the name of the maze.
         
         """
         
         if not isinstance(dimensionX, int) or not isinstance(dimensionY, int):      #Checking input errors
-            raise self.MazeError("Maze dimensions have to be an integer > 0")
+            raise self.__MazeError("Maze dimensions have to be an integer > 0")
             
         
         if dimensionX < 1 or dimensionY < 1:
-            raise self.MazeError("Maze dimensions have to be an integer > 0")
+            raise self.__MazeError("Maze dimensions have to be an integer > 0")
         
-        
-        if not isinstance(pixelSizeOfTile, int) or pixelSizeOfTile <= 0:
-            raise self.MazeError("the size of the tiles has to be an integer > 0")
             
         if not isinstance(mazeName, str):
-            raise self.MazeError("The name of the Maze has to be a string")
+            raise self.__MazeError("The name of the Maze has to be a string")
         
         
             
         self.sizeX = dimensionX     #The size of the Maze in the X direction (from left to right)
         self.sizeY = dimensionY     #The size of the Maze in the Y direction (from up to down)
-        self.pixel = pixelSizeOfTile    #The pixel size of a single tile. Determines the finale size of the picture
         
         self.name = mazeName    #The name of the Maze. Can be any string
-        self.mazeIsDone = False     #When this flag is False, no picture can be made. When this flag is True, the maze can not be changed
+        self.__mazeIsDone = False     #When this flag is False, no picture can be made. When this flag is True, the maze can not be changed
         
         self.mazeList = []          #A nested List of maze Tiles. The internal representation of the maze
         
-        self.wallList = []          #A list of all lists that are walls (needed for certain algorithm
+        self.wallList = []          #A list of all lists that are walls (needed for certain algorithm)
         self.tileList = []          #A single list of all tiles (needed of certain algorithm)
         
         self.mazeString = ""        #A string describing the Maze in a pseudo graphical manner, gets generated everytime __str__() gets called
@@ -138,7 +137,7 @@ class Maze:
             templist = []
             
             for indexX in range(0,self.sizeX):
-                newTile = self.MazeTile(indexX, indexY, isWall = False)
+                newTile = self.__MazeTile(indexX, indexY, isWall = False)
                 templist.append(newTile)
                 
             self.mazeList.append(templist)
@@ -153,7 +152,7 @@ class Maze:
             
             for tile in row:
                 
-                self.mazeString += "{:^7}".format(str(tile))
+                self.mazeString += "{:^20}".format(str(tile.connectTo))
         
             self.mazeString += "\n"
         
@@ -175,7 +174,7 @@ class Maze:
         
         if X < 0 or Y < 0:  #Checks input error (this should never happen)
             
-            raise self.MazeError("Inputs have to be an integer > 0")
+            raise self.__MazeError("Inputs have to be an integer > 0")
         
         templist = []
         
@@ -244,7 +243,7 @@ class Maze:
         
     def __connectTilesWithString(self,tile,direction):
         """Takes one tile and a direction string (N,S,W,E) to connect two tiles. Returns True.
-                Raises MazeError if a tile wants to connect out of the maze.
+                Raises __MazeError if a tile wants to connect out of the maze.
                 Make sure that this only connects unconnected tiles
         """
 
@@ -252,14 +251,14 @@ class Maze:
 
             try:
 
-                if tile.coordinateY == 0:
+                if tile.coordinateY == 0:   #This prevents list[-1] situations and two holes in the border wall
                     raise IndexError
                     
                 self.mazeList[tile.coordinateY -1][tile.coordinateX].connectTo.append("S")
                 tile.connectTo.append("N")
                 
             except(IndexError):
-                raise self.MazeError("This tile can not connect in this direction")
+                raise self.__MazeError("This tile can not connect in this direction")
         
         elif direction == "S":
 
@@ -268,7 +267,7 @@ class Maze:
                 tile.connectTo.append("S")
                 
             except(IndexError):
-                raise self.MazeError("This tile can not connect in this direction")     
+                raise self.__MazeError("This tile can not connect in this direction")     
                
         elif direction == "W":
             
@@ -279,7 +278,7 @@ class Maze:
                 tile.connectTo.append("W")   
                              
             except(IndexError):
-                raise self.MazeError("This tile can not connect in this direction")
+                raise self.__MazeError("This tile can not connect in this direction")
                 
         elif direction == "E":
             
@@ -288,10 +287,10 @@ class Maze:
                 tile.connectTo.append("E")
                 
             except(IndexError):
-                raise self.MazeError("This tile can not connect in this direction")
+                raise self.__MazeError("This tile can not connect in this direction")
                 
         else:
-            raise self.MazeError("This was not a direction string")
+            raise self.__MazeError("This was not a direction string")
             
         return True
         
@@ -340,8 +339,8 @@ class Maze:
             This will run until the frontier list is empty.
         """
         
-        if self.mazeIsDone:     #Can only run if the maze is not already formed
-            raise self.MazeError("Maze is already done")
+        if self.__mazeIsDone:     #Can only run if the maze is not already formed
+            raise self.__MazeError("Maze is already done")
         
         frontList = []          #A list of all untouched tiles that border a touched tile
         startingtile = rnd.choice(rnd.choice(self.mazeList))    #A randomly chosen tile that acts as starting tile
@@ -388,7 +387,7 @@ class Maze:
             self.__connectTiles(nextTile,connectTile)
             
         self.__makeEntryandExit()     #Finally produces a Entry and an Exit
-        self.mazeIsDone = True
+        self.__mazeIsDone = True
         return True
             
    
@@ -441,8 +440,8 @@ class Maze:
             This loops until the list of available tiles is empty.
         """
         
-        if self.mazeIsDone: #This function only runs of the Maze is not already formed.
-            raise self.MazeError("Maze is already done")
+        if self.__mazeIsDone: #This function only runs of the Maze is not already formed.
+            raise self.__MazeError("Maze is already done")
         
         
         startingtile = rnd.choice(rnd.choice(self.mazeList))    #First tile is randomly chosen
@@ -480,7 +479,7 @@ class Maze:
         
             
         self.__makeEntryandExit() #finally marking an Entry and an Exit
-        self.mazeIsDone = True
+        self.__mazeIsDone = True
         return True
         
     def makeMazeBraided(self, weightBraid = -1):
@@ -490,13 +489,13 @@ class Maze:
             weightBraid decides how many percent of the tiles should creat loops. (0-100)
             If set to -1, it will braid the maze by removing all and only dead ends
             
-            Raises a MazeError on wrong input.
+            Raises a __MazeError on wrong input.
         """
-        if not self.mazeIsDone:
-            raise self.MazeError("Maze needs to be formed first")
+        if not self.__mazeIsDone:
+            raise self.__MazeError("Maze needs to be formed first")
 
         if not isinstance(weightBraid, int) or weightBraid <  -1 or weightBraid > 100:
-            raise self.MazeError("weightBraid has to be >= -1")
+            raise self.__MazeError("weightBraid has to be >= -1")
         
         elif weightBraid == -1:
             for row in self.mazeList:
@@ -513,7 +512,7 @@ class Maze:
                                 self.__connectTilesWithString(tile,direction)
                                 break
                                 
-                            except(self.MazeError):
+                            except(self.__MazeError):
                                 pass
         else:
             for row in self.mazeList:
@@ -531,12 +530,12 @@ class Maze:
                                 self.__connectTilesWithString(tile,direction)
                                 break
                                 
-                            except(self.MazeError):
+                            except(self.__MazeError):
                                 pass
 
         return True
         
-    def makePP(self,mode = "1",colorWall = 0,colorFloor = 1):
+    def makePP(self,mode = "1", colorWall = 0, colorFloor = 1, pixelSizeOfTile = 10, ):
         """
         This generates and returns a Pillow Image object. It takes into account the size of the maze and
             the size of the the indivual pixel defined with pixelSizeOfTile. Defaults to 10 pixel.
@@ -555,15 +554,15 @@ class Maze:
             "RGB":  3x8 bit per pixels. colors can be given either as three 8 bit tuples (0,0,0)-(255,255,255)
                     or html color strings.
             
-            
+            The pixelSizeOfTile decides the edge length on of tile square in the picture.
 
-            Raises MazeError if the maze is not already finished and on wrong input.
+            Raises __MazeError if the maze is not already finished and on wrong input.
         """
         if mode == "1":                                                         #Checking for input errors
             if colorWall in (1,0) and colorFloor in (1,0):
                 pass
             else:
-                raise self.MazeError("In mode \'1\' the color vaules have to be 0 for black or 1 for white")
+                raise self.__MazeError("In mode \'1\' the color vaules have to be 0 for black or 1 for white")
                 
         elif mode == "RGB":
             
@@ -574,10 +573,10 @@ class Maze:
                 elif isinstance(colorWall,tuple) and len(colorWall) == 3:
                     for i in colorWall:
                         if not isinstance(i,int) or (i < 0 or i > 255):
-                            raise self.MazeError("RGB mode excepts only 8-bit integers")
+                            raise self.__MazeError("RGB mode excepts only 8-bit integers")
                 
                 else:
-                    raise self.MazeError("RGB Mode only excepts color strings or 3x8bit tulpels")    
+                    raise self.__MazeError("RGB Mode only excepts color strings or 3x8bit tulpels")    
                 
                     
                 if isinstance(colorFloor,str):
@@ -586,25 +585,28 @@ class Maze:
                 elif isinstance(colorFloor,tuple) and len(colorFloor) == 3:
                     for i in colorFloor:
                         if not isinstance(i,int) or (i < 0 or i > 255):
-                            raise self.MazeError("RGB mode excepts only 8-bit integers")
+                            raise self.__MazeError("RGB mode excepts only 8-bit integers")
                 
                 else:
-                    raise self.MazeError("RGB Mode only excepts color strings or 3x8bit tulpels") 
+                    raise self.__MazeError("RGB Mode only excepts color strings or 3x8bit tulpels") 
                     
             except ValueError:
-                raise self.MazeError("RGB mode excepts 140 common html color strings. This was not one of them")
+                raise self.__MazeError("RGB mode excepts 140 common html color strings. This was not one of them")
                 
             
                 
-        else: raise self.MazeError("The mode was not recognized. Only \'1\' or \'RGB\' are allowed")  #Finished looking for input errors.
+        else: raise self.__MazeError("The mode was not recognized. Only \'1\' or \'RGB\' are allowed")  
+        
+        if not isinstance(pixelSizeOfTile, int) or pixelSizeOfTile <= 0:
+            raise self.__MazeError("the size of the tiles has to be an integer > 0") #Finished looking for input errors.
                 
             
         
         
-        if not self.mazeIsDone:
-            raise self.MazeError("There is no Maze yet")
+        if not self.__mazeIsDone:
+            raise self.__MazeError("There is no Maze yet")
         
-        size = (self.pixel * (self.sizeX * 2 + 1), self.pixel * (self.sizeY * 2 + 1)) 
+        size = ( pixelSizeOfTile  * (self.sizeX * 2 + 1),  pixelSizeOfTile  * (self.sizeY * 2 + 1)) 
             #Determines the size of the picture. It does this by taking the number of tiles,
                 # multiplying it with 2 to account for walls or connections and adds one for offset
         
@@ -624,22 +626,22 @@ class Maze:
                     
                     # - 1 to offset the tile to an uneven postition
                     
-                    x = ((tile.coordinateX  + 1) * 2 - 1) * self.pixel
-                    y = ((tile.coordinateY  + 1) * 2 - 1) * self.pixel
-                    drawImage.rectangle([x, y, x + self.pixel -1, y + self.pixel -1], fill = colorFloor)
+                    x = ((tile.coordinateX  + 1) * 2 - 1) *  pixelSizeOfTile 
+                    y = ((tile.coordinateY  + 1) * 2 - 1) *  pixelSizeOfTile 
+                    drawImage.rectangle([x, y, x +  pixelSizeOfTile  -1, y +  pixelSizeOfTile  -1], fill = colorFloor)
 
                     
                     if "N" in tile.connectTo:
-                        drawImage.rectangle([x, y - self.pixel, x + self.pixel - 1, y - 1], fill = colorFloor)
+                        drawImage.rectangle([x, y -  pixelSizeOfTile , x +  pixelSizeOfTile  - 1, y - 1], fill = colorFloor)
                         
                     if "S" in tile.connectTo:
-                        drawImage.rectangle([x, y + self.pixel, x + self.pixel - 1, y + self.pixel + self.pixel - 1], fill = colorFloor)
+                        drawImage.rectangle([x, y +  pixelSizeOfTile , x +  pixelSizeOfTile  - 1, y +  pixelSizeOfTile  +  pixelSizeOfTile  - 1], fill = colorFloor)
                         
                     if "W" in tile.connectTo:
-                        drawImage.rectangle([x - self.pixel, y, x - 1, y + self.pixel - 1], fill = colorFloor)
+                        drawImage.rectangle([x -  pixelSizeOfTile , y, x - 1, y +  pixelSizeOfTile  - 1], fill = colorFloor)
         
                     if "E" in tile.connectTo:
-                        drawImage.rectangle([x + self.pixel, y, x + self.pixel + self.pixel - 1, y + self.pixel - 1], fill = colorFloor)
+                        drawImage.rectangle([x +  pixelSizeOfTile , y, x +  pixelSizeOfTile  +  pixelSizeOfTile  - 1, y +  pixelSizeOfTile  - 1], fill = colorFloor)
 
         return image #returns an image object
         
@@ -665,19 +667,19 @@ class Maze:
             tempName = re.sub(r'[^a-zA-Z0-9_]', '', self.name)  #Regular expression to make name filename safe
             if len(tempName) > 120:                             #Limiting the length of the filename
                 tempName = tempName[0:120]
-            size = (self.pixel * (self.sizeX * 2 + 1), self.pixel * (self.sizeY * 2 + 1))
+            size = ( pixelSizeOfTile  * (self.sizeX * 2 + 1),  pixelSizeOfTile  * (self.sizeY * 2 + 1))
             name = tempName +"-"+ str(size[0]) + "_" + str(size[1]) + ".png"
 
             
         image.save(name,format)
-                    
+        
         return True
 
 #Examples:
-#newMaze = Maze(100,100)
-#newMaze.makeMazeGrowTree(weightHigh = 99, weightLow = 97)
-#mazeImageBW = newMaze.makePP()
-#mazeImage.show() #can or can not work, see Pillow documentation. For debuging only
+newMaze = Maze(10,10)
+newMaze.makeMazeGrowTree(weightHigh = 99, weightLow = 97)
+mazeImageBW = newMaze.makePP()
+#mazeImageBW.show() #can or can not work, see Pillow documentation. For debuging only
 #newMaze.saveImage(mazeImageBW)
 
 #newMaze = Maze(50,50,mazeName="ColorMaze")
@@ -685,8 +687,8 @@ class Maze:
 #mazeImageColor = newMaze.makePP(mode="RGB",colorWall = "yellow",colorFloor = (250,0,20))
 #newMaze.saveImage(mazeImageColor)
 
-newMaze = Maze(20,20,mazeName = "BraidedMaze")
-newMaze.makeMazeGrowTree(weightHigh = 100, weightLow = 95)
-newMaze.makeMazeBraided(10)
-mazeImageBW = newMaze.makePP()
-newMaze.saveImage(mazeImageBW)
+#newMaze = Maze(5,5,mazeName = "BraidedMaze")
+#newMaze.makeMazeGrowTree(weightHigh = 100, weightLow = 95)
+#newMaze.makeMazeBraided(10)
+#mazeImageBW = newMaze.makePP()
+#newMaze.saveImage(mazeImageBW)
