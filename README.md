@@ -22,6 +22,8 @@ implements the growing tree algorithm http://weblog.jamisbuck.org/2011/1/27/maze
         
 
     A maze object starts unformed. It then has to be formed by a chosen algorithm.
+    This can be done only once per maze. After it was formed only the brading function can 
+    change the maze.
     The default algorithm is the GrowTree algorithm:
     
         newMaze.makeMazeGrowTree()
