@@ -51,7 +51,7 @@ implements the growing tree algorithm http://weblog.jamisbuck.org/2011/1/27/maze
     one tile square of 10 pixels
     This can be changed:
         
-        mazeImageColor = newMaze.makePP(mode = "RGB",colorWall = "blue", colorFloor = (100,0,255),pixelSizeOfTile = 3)
+        mazeImageColor = newMaze.makePP(mode= "RGB",colorWall= "blue", colorFloor= (100,0,255), pixelSizeOfTile= 3)
     
     
     This class also provides a way to write these images to disk.
