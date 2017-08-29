@@ -47,7 +47,7 @@ implements the growing tree algorithm http://weblog.jamisbuck.org/2011/1/27/maze
     
         mazeImageBW = newMaze.makePP()
         
-    It defaults two a black and white picture (walls balck, floors white) with a edge length of 
+    It defaults two a black and white picture (walls black, floors white) with a edge length of 
     one tile square of 10 pixels
     This can be changed:
         
@@ -64,7 +64,7 @@ implements the growing tree algorithm http://weblog.jamisbuck.org/2011/1/27/maze
     
         newMaze.saveImage(mazeImageColor, name = "ColorImage.png")
         
-        newMaze.saveImage(mazeImageColor, name = fileObject, format = "PNG")
+        newMaze.saveImage(mazeImageColor, name = pathObject, format = "PNG")
         
         newMaze.saveImage(mazeImageColor, name = "ColorImage", format = "PNG")
         
