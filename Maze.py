@@ -645,15 +645,8 @@ class Maze:
         for row in self.mazeList: #Iterates over all tiles
                 
                 for tile in row:
-                    #Why (x + 1) * 2 - 1) ? 
-                    # (x + 1) because the numbering of tiles starts with 0
-                    
-                    # * 2 because between every floor tile lays a wall tile, doppling the tiles in the picture.
-                    # floor tiles lay on the grid coordinates 1,3,5,7 .. in the finale picture, on 0,2,4 ... 
-                    # lay either wall tiles or connecting tiles.
-                    
-                    # - 1 to offset the tile to an uneven postition
-                    
+                    #There are floor tiles at postion 1,3,5..., at postion 0,2,4,6... are either wall tiles or connecting tiles.
+
                     x = ((tile.coordinateX  + 1) * 2 - 1) *  pixelSizeOfTile 
                     y = ((tile.coordinateY  + 1) * 2 - 1) *  pixelSizeOfTile 
                     drawImage.rectangle([x, y, x +  pixelSizeOfTile  -1, y +  pixelSizeOfTile  -1], fill = colorFloor)
