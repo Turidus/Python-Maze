@@ -141,18 +141,12 @@ class Maze:
         self.mazeString = ""        #A string describing the Maze in a pseudo graphical manner, gets generated everytime __str__() gets called
         
         
-        for indexY in range (0,self.sizeY):     #This loops generates the mazeList and populates it with new untouched floor tiles
-            templist = []
-            
-            for indexX in range(0,self.sizeX):
-                newTile = self.__MazeTile(indexX, indexY, isWall = False)
-                templist.append(newTile)
-                
-            self.mazeList.append(templist)
         
         
-        
-    def __str__(self): #Generates the mazeString which is a string with as many columns as sizeX and as many lines as sizeY
+    def __str__(self): 
+        """ Generates the mazeString which is a string with as many columns as sizeX and as many lines as sizeY.
+            The cells are filled with the conenction of the tile at these coordinates.
+        """
         
         self.mazeString = ""
         
@@ -169,7 +163,9 @@ class Maze:
         
             
         
-    def __repr__(self): #Builds a representing string
+    def __repr__(self): 
+        """ Generates a representing string
+        """
             
             
         return "This is a Maze with width of {} and height of {}".format(self.sizeX , self.sizeY)
@@ -349,6 +345,15 @@ class Maze:
         
         if self.__mazeIsDone:     #Can only run if the maze is not already formed
             raise self.__MazeError("Maze is already done",3)
+            
+        for indexY in range (0,self.sizeY):     #This loops generates the mazeList and populates it with new untouched floor tiles
+            templist = []
+            
+            for indexX in range(0,self.sizeX):
+                newTile = self.__MazeTile(indexX, indexY, isWall = False)
+                templist.append(newTile)
+                
+            self.mazeList.append(templist)
         
         frontList = []          #A list of all untouched tiles that border a touched tile
         startingtile = rnd.choice(rnd.choice(self.mazeList))    #A randomly chosen tile that acts as starting tile
@@ -450,6 +455,15 @@ class Maze:
         
         if self.__mazeIsDone: #This function only runs of the Maze is not already formed.
             raise self.__MazeError("Maze is already done",3)
+            
+        for indexY in range (0,self.sizeY):     #This loops generates the mazeList and populates it with new untouched floor tiles
+            templist = []
+            
+            for indexX in range(0,self.sizeX):
+                newTile = self.__MazeTile(indexX, indexY, isWall = False)
+                templist.append(newTile)
+                
+            self.mazeList.append(templist)
         
         
         startingtile = rnd.choice(rnd.choice(self.mazeList))    #First tile is randomly chosen
@@ -701,9 +715,14 @@ class Maze:
 #mazeImageColor = newMaze.makePP(mode="RGB",colorWall = "yellow",colorFloor = (250,0,20))
 #newMaze.saveImage(mazeImageColor)
 
-#newMaze = Maze(5,5,mazeName = "BraidedMaze")
-#newMaze.makeMazeGrowTree(weightHigh = 100, weightLow = 95)
-#newMaze.makeMazeBraided(10)
-#mazeImageBW = newMaze.makePP()
+newMaze = Maze(30,30,mazeName = "BraidedMaze")
+newMaze.makeMazeGrowTree(weightHigh = 100, weightLow = 95)
+newMaze.saveImage(newMaze.makePP(),name = "1.png")
+newMaze.makeMazeBraided(-1)
+newMaze.saveImage(newMaze.makePP(),name = "2.png")
+newMaze.makeMazeBraided(5)
+newMaze.saveImage(newMaze.makePP(),name = "3.png")
+newMaze.makeMazeBraided(10)
+newMaze.saveImage(newMaze.makePP(),name = "4.png")
 #mazeImageBW.show()
 #newMaze.saveImage(mazeImageBW)
