@@ -64,7 +64,7 @@ implements the growing tree algorithm http://weblog.jamisbuck.org/2011/1/27/maze
     
         newMaze.saveImage(mazeImageColor, name = "ColorImage.png")
         
-        newMaze.saveImage(mazeImageColor, name = fileObject, format = "PNG")
+        newMaze.saveImage(mazeImageColor, name = pathObject, format = "PNG")
         
         newMaze.saveImage(mazeImageColor, name = "ColorImage", format = "PNG")
         
