@@ -9,13 +9,13 @@ implements the growing tree algorithm http://weblog.jamisbuck.org/2011/1/27/maze
 
 ### Usage:
 
-Import the Maze class into your project if you have to. If you just want nice picture of a
+1. Import the Maze class into your project if you have to. If you just want nice picture of a
 maze, you can simply run this file directly. Examples are provided on the bottom of Maze.py.
 ```python    
 import Maze
 ```
 
-First create a new maze object. The arugments decide the size in X and Y in **floor tiles**.
+Create a new maze object. The arugments decide the size in X and Y in **floor tiles**.
 The **finale amount** of tiles in a maze in one direction is size * 2 + 1:
 ```python      
 newMaze = Maze(100,100)
@@ -26,7 +26,7 @@ newMaze = Maze(100,100, mazeName = "MyMaze")
 ```    
 
 
-A maze object starts unformed. It then has to be formed by a chosen algorithm.
+2. A maze object starts unformed. It then has to be formed by a chosen algorithm.
 which can be only done **once** per maze. After it was formed only the braiding function can 
 change the maze.
 The default algorithm is the GrowTree algorithm:
@@ -40,7 +40,7 @@ newMaze.makeMazeGrowTree(89,32)
 ```
 
 
-After a maze is formed it can be braided, multiple time if needed.
+3. After a maze is formed it can be braided, multiple time if needed.
 This either removes all dead ends:
 ```python    
 newMaze.makeMazeBraided(-1)
@@ -51,7 +51,7 @@ newMaze.makeMazeBraided(7)
 ```
 
 
-After a maze is finished, it can be made into a picture by using Pillow:
+4. After a maze is finished, it can be made into a picture by using Pillow:
 ```python
 mazeImageBW = newMaze.makePP()
 ```    
@@ -63,7 +63,7 @@ mazeImageColor = newMaze.makePP(mode= "RGB",colorWall= "blue", colorFloor= (100,
 ```
 
 
-This class also provides a way to write these images to disk.
+5. This class also provides a way to write these images to disk.
 It defaults to a png file with a name constructed out of the name and pixel size of the maze.
 ```python
 newMaze.saveImage(mazeImageBW)
