@@ -1,4 +1,4 @@
-#A maze generator in Python 3.6 
+A maze generator in Python 3.6 
 
 Depends on Pillow 4.2 https://pillow.readthedocs.io/en/4.2.x/index.html
 
@@ -7,20 +7,23 @@ After initilizing the class with the desired size, it can be formed into a maze 
 implements the growing tree algorithm http://weblog.jamisbuck.org/2011/1/27/maze-generation-growing-tree-algorithm.
 
 
-##Usage:
-    
-        import Maze
-    
-    First create a new maze object. The arugments decide the size in X and Y in **floor tiles**.
-    The **finale amount** of tiles in a maze in one direction is size * 2 + 1:
-        
-        newMaze = Maze(100,100)
-    
-    A maze can also be named:
-        
-        newMaze = Maze(100,100, mazeName = "MyMaze")
-        
+Usage:
 
+Import the Maze class into your project if you have to. If you just want nice picture of a
+maze, you can simply run this file directly. Examples are provided on the bottom of Maze.py.
+        
+    import Maze
+    
+First create a new maze object. The arugments decide the size in X and Y in **floor tiles**.
+The **finale amount** of tiles in a maze in one direction is size * 2 + 1:
+    
+    newMaze = Maze(100,100)
+    
+A maze can also be named:
+    
+    newMaze = Maze(100,100, mazeName = "MyMaze")
+    
+    
     A maze object starts unformed. It then has to be formed by a chosen algorithm.
     This can be done only once per maze. After it was formed only the brading function can 
     change the maze.
