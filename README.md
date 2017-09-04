@@ -18,7 +18,7 @@ The examples are provided on the bottom of Maze.py.
 import Maze
 ```
 #### 2. Create a maze object
-Create a new maze object. The arugments decide the size in X and Y in **floor tiles**.
+Create a new maze object. The arguments decide the size in X and Y in **floor tiles**.
 The **finale amount** of tiles in a maze in one direction is size * 2 + 1:
 ```python      
 newMaze = Maze(100,100)
