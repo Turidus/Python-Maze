@@ -25,7 +25,7 @@ A maze can also be named:
     
 
 A maze object starts unformed. It then has to be formed by a chosen algorithm.
-This can be done only once per maze. After it was formed only the brading function can 
+which can be only done *once* per maze. After it was formed only the braiding function can 
 change the maze.
 The default algorithm is the GrowTree algorithm:
 
@@ -41,7 +41,7 @@ After a maze is formed it can be braided. This either removes all dead ends:
     
     newMaze.makeMazeBraided(-1)
     
-or introduces random loops, by give a percentage of tiles that will have additional connections:
+or introduces random loops, by taking a percentage of tiles that will have additional connections:
     
     newMaze.makeMazeBraided(7)
 
@@ -50,9 +50,9 @@ After a maze is finished, it can be made into a picture by using Pillow:
 
     mazeImageBW = newMaze.makePP()
     
-It defaults two a black and white picture (walls black, floors white) with a edge length of 
-one tile square of 10 pixels
-This can be changed:
+It defaults two a black and white picture (walls black, floors white) with a tile size of 
+10 by 10 pixels
+This can be changed into colored picture:
     
     mazeImageColor = newMaze.makePP(mode= "RGB",colorWall= "blue", colorFloor= (100,0,255), pixelSizeOfTile= 3)
 
