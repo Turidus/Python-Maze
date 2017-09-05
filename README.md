@@ -10,6 +10,10 @@ http://weblog.jamisbuck.org/2011/1/27/maze-generation-growing-tree-algorithm.
 
 ### Usage:
 
+#### 0. Provide Pillow
+This generator uses Pillow, a fork of the Python Image Liberay. See the link on how to install Pillow.
+https://pillow.readthedocs.io/en/4.2.x/installation.html
+
 #### 1. Optional Import
 Import the Maze class into your project if you want to use the maze inside a project. If you 
 just want nice picture of a maze, you can simply uncomment and modifiy the examples and run this file directly. 
@@ -53,7 +57,7 @@ newMaze.makeMazeBraided(7)
 ```
 
 #### 5. Make a picture
-After a maze is finished, it can be made into a picture by using Pillow:
+After a maze is finished, it can be made into a picture, which uses Pillow:
 ```python
 mazeImageBW = newMaze.makePP()
 ```    
