@@ -38,7 +38,7 @@ newMaze.makeMazeGrowTree()
 This function can be called with weights (0 - 100). These define the behavior of the the maze.
 Roughly speaking, the higher both weights are, the harder the maze is to solve.
 ```python
-newMaze.makeMazeGrowTree(89,32)
+newMaze.makeMazeGrowTree(weightHigh = 89, weightLow = 32)
 ```
 
 #### 4. Braid it when needed
